@@ -1,67 +1,96 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var selectedItem: Item?
-    @State private var searchText = ""
+    @State private var selectedItem: AppListItem? = nil
+    @State private var query = ""
 
-    var filtered: [Item] {
-        searchText.isEmpty ? Item.samples : Item.samples.filter { $0.title.contains(searchText) }
+    var filtered: [AppListItem] {
+        query.isEmpty
+            ? AppConfig.listItems
+            : AppConfig.listItems.filter { $0.title.contains(query) }
     }
 
     var body: some View {
         NavigationSplitView {
             List(filtered, selection: $selectedItem) { item in
-                ItemRow(item: item)
-                    .tag(item)
+                NavigationLink(value: item) {
+                    HStack(spacing: 12) {
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(item.color.opacity(0.15))
+                            .frame(width: 40, height: 40)
+                            .overlay(
+                                Text(item.icon)
+                                    .font(.title3)
+                            )
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(item.title)
+                                .font(.system(.body, design: AppConfig.fontDesign).weight(.semibold))
+                            Text("اضغط للتفاصيل")
+                                .font(.system(.caption, design: AppConfig.fontDesign))
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                    }
+                    .padding(.vertical, 2)
+                }
             }
-            .searchable(text: $searchText)
-            .navigationTitle("القائمة")
+            .searchable(text: $query, prompt: "بحث...")
+            .navigationTitle("مهامي")
+            .background(AppConfig.backgroundColor.ignoresSafeArea())
         } detail: {
             if let item = selectedItem {
                 ItemDetailView(item: item)
             } else {
-                ContentUnavailableView("اختر عنصراً", systemImage: "list.bullet")
+                ContentUnavailableView(
+                    "اختر عنصراً",
+                    systemImage: "sidebar.left",
+                    description: Text("اختر من القائمة للعرض")
+                )
+                .foregroundStyle(AppConfig.primaryColor)
             }
         }
-    }
-}
-
-struct ItemRow: View {
-    let item: Item
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: item.systemImage)
-                .font(.title2)
-                .foregroundStyle(.white)
-                .frame(width: 44, height: 44)
-                .background(Color(item.color))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-            VStack(alignment: .leading, spacing: 2) {
-                Text(item.title).font(.headline)
-                Text(item.subtitle).font(.caption).foregroundStyle(.secondary)
-            }
-        }
-        .padding(.vertical, 4)
+        .tint(AppConfig.primaryColor)
     }
 }
 
 struct ItemDetailView: View {
-    let item: Item
+    let item: AppListItem
+
     var body: some View {
-        VStack(spacing: 24) {
-            Image(systemName: item.systemImage)
-                .font(.system(size: 80))
-                .foregroundStyle(.white)
-                .frame(width: 140, height: 140)
-                .background(Color(item.color))
-                .clipShape(RoundedRectangle(cornerRadius: 32))
-            Text(item.title).font(.largeTitle.bold())
-            Text(item.subtitle).font(.title3).foregroundStyle(.secondary).multilineTextAlignment(.center)
+        ScrollView {
+            VStack(spacing: 24) {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [item.color, AppConfig.primaryColor],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 100, height: 100)
+                    .overlay(Text(item.icon).font(.system(size: 44)))
+
+                Text(item.title)
+                    .font(.system(.title, design: AppConfig.fontDesign).bold())
+                    .foregroundStyle(item.color)
+
+                Text("تفاصيل العنصر المحدد تظهر هنا. يمكنك تعديل هذه الشاشة لعرض أي محتوى تريده.")
+                    .font(.system(.body, design: AppConfig.fontDesign))
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+
+                Button("إجراء ما") {}
+                    .buttonStyle(.borderedProminent)
+                    .tint(item.color)
+            }
+            .padding(.top, 40)
         }
-        .padding()
         .navigationTitle(item.title)
-        .navigationBarTitleDisplayMode(.inline)
+        .background(AppConfig.backgroundColor.ignoresSafeArea())
     }
 }
 
-#Preview { ContentView() }
+#Preview {
+    ContentView()
+}
