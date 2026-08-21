@@ -2,7 +2,7 @@ import SwiftUI
 
 // Default values — overwritten by Last Mile runner at build time
 
-struct AppListItem: Identifiable {
+struct AppListItem: Identifiable, Hashable {
     let id = UUID()
     let title: String
     let icon: String
