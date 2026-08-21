@@ -9,6 +9,9 @@ settings:
   MARKETING_VERSION: ${APP_VERSION}
   CURRENT_PROJECT_VERSION: ${BUILD_NUMBER}
   SWIFT_VERSION: "5.9"
+  # يربط الأيقونة من كتالوج الأصول، ويولّد CFBundleIconName تلقائياً —
+  # وغيابه كان يرفضه فحص Apple: "A value for 'CFBundleIconName' is missing".
+  ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
 targets:
   ${APP_NAME}:
     type: application
@@ -20,5 +23,14 @@ targets:
         CFBundleDisplayName: ${APP_DISPLAY_NAME}
         UILaunchScreen:
           UIColorName: ""
+        # الأربعة كلها مطلوبة: Apple ترفض Portrait وحده لأجل تعدّد مهام iPad.
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
